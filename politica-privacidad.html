@@ -145,8 +145,62 @@
         <p><em>Última actualización: 20 de octubre de 2023</em></p>
     </main>
 
-    <footer class="site-footer">
-        <!-- Mismo footer que en index.html -->
+ <!-- Footer mejorado -->
+    <footer class="site-footer" role="contentinfo">
+        <div class="footer-content">
+            <div class="footer-section" role="region" aria-labelledby="contactHeading">
+                <h4 id="contactHeading">Contacto</h4>
+                <address>
+                    <p>Tel: <a href="tel:+529981991967" aria-label="Llamar por teléfono">+52 998 199 1967</a></p>
+                    <p>Email: <a href="mailto:qkike@icloud.com" aria-label="Enviar correo electrónico">qkike@icloud.com</a></p>
+                </address>
+            </div>
+
+            <div class="footer-section" role="region" aria-labelledby="hoursHeading">
+                <h4 id="hoursHeading">Horario</h4>
+                <time datetime="Mo-Sa 08:00-20:00">Lunes a Sábado: 8:00 AM - 8:00 PM</time>
+                <time datetime="Su">Domingo: Cerrado</time>
+            </div>
+
+            <div class="footer-section" role="region" aria-labelledby="socialHeading">
+                <h4 id="socialHeading">Conéctate</h4>
+                <div class="social-links">
+                    <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+                        <svg role="img" aria-hidden="true" class="social-icon">
+                            <!-- SVG de Facebook aquí -->
+                        </svg>
+                    </a>
+                    <a href="#" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                        <svg role="img" aria-hidden="true" class="social-icon">
+                            <!-- SVG de Instagram aquí -->
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; <span id="currentYear"></span> La Tamalería Cancún. Todos los derechos reservados</p>
+            <nav aria-label="Enlaces legales">
+                <a href="politica-privacidad.html">Política de Privacidad</a> | 
+                <a href="terminos-servicios.html">Términos de Servicio</a>
+            </nav>
+        </div>
     </footer>
+
+    <script>
+        // Actualizar año automáticamente
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
+        // Menú móvil
+        const menuToggle = document.querySelector('.menu-toggle');
+        const navLinks = document.querySelector('.nav-links');
+
+        menuToggle.addEventListener('click', () => {
+            const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+            menuToggle.setAttribute('aria-expanded', !isExpanded);
+            navLinks.classList.toggle('active');
+        });
+    </script>
 </body>
 </html>
