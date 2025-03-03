@@ -5,52 +5,179 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Términos de Servicio - La Tamalería Cancún</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .legal-container {
+            max-width: 800px;
+            margin: 80px auto 40px;
+            padding: 2rem;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .legal-container h1 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            color: #c41e3a;
+        }
+
+        .legal-container section {
+            margin: 3rem 0;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .legal-container h2 {
+            color: #f4a261;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+        }
+
+        .legal-container ul {
+            padding-left: 1.5rem;
+            margin: 1.5rem 0;
+        }
+
+        .legal-container li {
+            margin-bottom: 0.8rem;
+            padding-left: 0.5rem;
+        }
+
+        .legal-container a {
+            color: #c41e3a;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .legal-container a:hover {
+            text-decoration: underline;
+        }
+
+        em {
+            display: block;
+            text-align: center;
+            margin-top: 3rem;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .legal-container {
+                padding: 1rem;
+                margin-top: 60px;
+            }
+            
+            .legal-container h1 {
+                font-size: 2rem;
+            }
+            
+            .legal-container section {
+                padding: 1.5rem;
+                margin: 2rem 0;
+            }
+        }
+    </style>
 </head>
 <body>
     <header class="header">
-        <!-- Mismo header que index.html -->
+        <nav class="navbar">
+            <a href="index.html" class="logo">La Tamalería<span>Cancún</span></a>
+            <ul class="nav-links">
+                <li><a href="index.html#inicio">Inicio</a></li>
+                <li><a href="index.html#menu">Tamales</a></li>
+                <li><a href="index.html#atoles">Atoles</a></li>
+                <li><a href="index.html#nosotros">Nosotros</a></li>
+                <li><a href="index.html#contacto">Contacto</a></li>
+            </ul>
+        </nav>
     </header>
 
     <main class="legal-container">
         <h1>Términos de Servicio</h1>
         
         <section>
-            <h2>1. Aceptación de los Términos</h2>
-            <p>Al usar nuestro sitio web, aceptas estos términos y nuestra política de privacidad.</p>
-        </section>
-
-        <section>
-            <h2>2. Reservaciones y Pedidos</h2>
+            <h2>1. Alcance de los Servicios</h2>
+            <p>Nuestros servicios incluyen:</p>
             <ul>
-                <li>Los precios pueden cambiar sin previo aviso</li>
-                <li>Nos reservamos el derecho de cancelar reservaciones</li>
-                <li>Política de cancelación: 24 horas de anticipación</li>
+                <li>Venta de productos alimenticios tradicionales</li>
+                <li>Entrega a domicilio en área designada</li>
+                <li>Servicio de reservaciones para eventos</li>
             </ul>
         </section>
 
         <section>
-            <h2>3. Propiedad Intelectual</h2>
-            <p>Todo el contenido del sitio (textos, imágenes, logos) es propiedad exclusiva de La Tamalería Cancún.</p>
+            <h2>2. Política de Pedidos</h2>
+            <ul>
+                <li>Mínimo de pedido: $150 MXN</li>
+                <li>Horario de entrega: 9:00 AM - 7:00 PM</li>
+                <li>Métodos de pago aceptados: Efectivo y tarjetas</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>3. Devoluciones y Reclamaciones</h2>
+            <ul>
+                <li>Reclamos dentro de las 24 horas posteriores a la entrega</li>
+                <li>Devoluciones solo por productos defectuosos</li>
+                <li>Proceso de reembolso en 3-5 días hábiles</li>
+            </ul>
         </section>
 
         <section>
             <h2>4. Limitación de Responsabilidad</h2>
             <p>No nos hacemos responsables por:</p>
             <ul>
-                <li>Interrupciones del servicio</li>
-                <li>Daños por uso incorrecto del sitio</li>
-                <li>Contenido en enlaces externos</li>
+                <li>Daños por uso incorrecto de productos</li>
+                <li>Retrasos por factores externos</li>
+                <li>Alergias no comunicadas</li>
             </ul>
         </section>
 
         <section>
             <h2>5. Modificaciones</h2>
-            <p>Podemos actualizar estos términos periódicamente. Las versiones anteriores estarán disponibles en archivo.</p>
+            <p>Nos reservamos el derecho de:</p>
+            <ul>
+                <li>Actualizar estos términos periódicamente</li>
+                <li>Ajustar precios según mercado</li>
+                <li>Suspender servicios temporalmente</li>
+            </ul>
         </section>
 
-        <p><em>Vigente a partir de: [Fecha]</em></p>
+        <p><em>Última actualización: 25 de octubre de 2023</em></p>
     </main>
 
-    <!-- Footer igual que index.html -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p>Tel: <a href="tel:+529981991967">+52 998 199 1967</a></p>
+                <p>Email: <a href="mailto:qkike@icloud.com">qkike@icloud.com</a></p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Horario</h4>
+                <p>Lunes a Sábado: 8:00 AM - 8:00 PM</p>
+                <p>Domingo: Cerrado</p>
+            </div>
+            
+            <div class="footer-section">
+                <h4>Redes Sociales</h4>
+                <div class="social-links">
+                    <a href="#" target="_blank"><img src="assets/images/facebook-icon.svg" alt="Facebook"></a>
+                    <a href="#" target="_blank"><img src="assets/images/instagram-icon.svg" alt="Instagram"></a>
+                    <a href="#" target="_blank"><img src="assets/images/twitter-icon.svg" alt="Twitter"></a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2023 La Tamalería Cancún. Todos los derechos reservados</p>
+            <p>
+                <a href="politica-privacidad.html">Política de Privacidad</a> | 
+                <a href="terminos-servicio.html">Términos de Servicio</a>
+            </p>
+        </div>
+    </footer>
 </body>
 </html>
