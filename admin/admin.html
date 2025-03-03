@@ -1,0 +1,47 @@
+<!-- admin.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - Inventario</title>
+    <link rel="stylesheet" href="admin.css">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="login-container" id="loginContainer">
+            <h2>Acceso Administrador</h2>
+            <input type="email" id="email" placeholder="Correo electrónico">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button onclick="login()">Ingresar</button>
+        </div>
+
+        <div class="inventory-container" id="inventoryContainer" style="display:none;">
+            <h2>Gestión de Inventario</h2>
+            
+            <div class="inventory-actions">
+                <button onclick="showAddModal()">➕ Nuevo Insumo</button>
+                <button onclick="logout()">🔒 Cerrar Sesión</button>
+            </div>
+
+            <div id="inventoryList"></div>
+        </div>
+    </div>
+
+    <!-- Modal para agregar/editar insumos -->
+    <div id="itemModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h3>Gestionar Insumo</h3>
+            <input type="text" id="itemName" placeholder="Nombre del insumo">
+            <input type="number" id="itemQuantity" placeholder="Cantidad">
+            <input type="text" id="itemUnit" placeholder="Unidad de medida">
+            <button onclick="saveItem()">Guardar</button>
+        </div>
+    </div>
+
+    <script src="admin.js"></script>
+</body>
+</html>
