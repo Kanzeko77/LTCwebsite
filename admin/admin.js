@@ -1,124 +1,113 @@
 // admin.js
-// Configuración de Firebase (Sustituir con tus datos)
-const firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_PROYECTO.firebaseapp.com",
-    projectId: "TU_PROYECTO",
-    storageBucket: "TU_PROYECTO.appspot.com",
-    messagingSenderId: "TU_SENDER_ID",
-    appId: "TU_APP_ID"
-};
+class AdminUI {
+    static init() {
+        this.bindEvents();
+        this.checkAuthState();
+    }
 
-// Inicializar Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+    static bindEvents() {
+        // Autenticación
+        document.getElementById('loginBtn').addEventListener('click', this.handleLogin);
+        document.getElementById('logoutBtn').addEventListener('click', this.handleLogout);
+        document.getElementById('addItemBtn').addEventListener('click', () => this.showModal());
+        document.getElementById('itemForm').addEventListener('submit', this.saveItem);
+        document.getElementById('searchInput').addEventListener('input', this.searchItems);
+    }
 
-// Variables globales
-let currentUser = null;
-let editingItemId = null;
+    static async checkAuthState() {
+        try {
+            const user = await new Promise((resolve, reject) => {
+                const unsubscribe = firebase.auth.onAuthStateChanged(user => {
+                    unsubscribe();
+                    resolve(user);
+                }, reject);
+            });
 
-// Función de login
-function login() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    auth.signInWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-            currentUser = userCredential.user;
-            document.getElementById('loginContainer').style.display = 'none';
-            document.getElementById('inventoryContainer').style.display = 'block';
-            loadInventory();
-        })
-        .catch((error) => {
-            alert("Error: " + error.message);
-        });
-}
+            if (user) {
+                const isAdmin = await this.verifyAdminRole(user.uid);
+                if (isAdmin) {
+                    this.showInventory();
+                    this.loadInventory();
+                } else {
+                    this.showAuthError('No tienes permisos de administrador');
+                    await firebase.signOut(auth);
+                }
+            }
+        } catch (error) {
+            console.error('Error verifying auth:', error);
+        }
+    }
 
-// Función de logout
-function logout() {
-    auth.signOut().then(() => {
-        currentUser = null;
-        document.getElementById('loginContainer').style.display = 'block';
-        document.getElementById('inventoryContainer').style.display = 'none';
-    });
-}
+    static async verifyAdminRole(uid) {
+        const adminDoc = await firebase.getDoc(firebase.doc(firebase.db, 'admins', uid));
+        return adminDoc.exists();
+    }
 
-// Cargar inventario
-function loadInventory() {
-    db.collection('inventory').onSnapshot((snapshot) => {
-        const inventoryList = document.getElementById('inventoryList');
-        inventoryList.innerHTML = '';
+    static async handleLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
         
-        snapshot.forEach(doc => {
-            const item = doc.data();
-            const itemHtml = `
-                <div class="inventory-item">
-                    <div>
-                        <strong>${item.name}</strong><br>
-                        ${item.quantity} ${item.unit}
-                    </div>
-                    <div>
-                        <button onclick="editItem('${doc.id}')">✏️</button>
-                        <button onclick="deleteItem('${doc.id}')">🗑️</button>
-                    </div>
-                </div>
-            `;
-            inventoryList.innerHTML += itemHtml;
+        try {
+            await firebase.signInWithEmailAndPassword(firebase.auth, email, password);
+        } catch (error) {
+            this.showAuthError(this.getErrorMessage(error.code));
+        }
+    }
+
+    static async handleLogout() {
+        try {
+            await firebase.signOut(firebase.auth);
+            window.location.reload();
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    }
+
+    static async loadInventory() {
+        try {
+            this.showLoading();
+            const q = firebase.query(firebase.collection(firebase.db, 'inventory'));
+            
+            const unsubscribe = firebase.onSnapshot(q, (snapshot) => {
+                const items = [];
+                snapshot.forEach(doc => items.push({ id: doc.id, ...doc.data() }));
+                this.renderInventory(items);
+                this.hideLoading();
+            });
+
+            window.addEventListener('beforeunload', unsubscribe);
+        } catch (error) {
+            this.showError('Error al cargar inventario');
+        }
+    }
+
+    static renderInventory(items) {
+        const tbody = document.getElementById('inventoryList');
+        tbody.innerHTML = items.map(item => `
+            <tr>
+                <td>${item.name}</td>
+                <td>${item.quantity}</td>
+                <td>${item.unit}</td>
+                <td>${new Date(item.lastUpdate).toLocaleDateString()}</td>
+                <td>
+                    <button class="edit-btn" data-id="${item.id}">✏️</button>
+                    <button class="delete-btn" data-id="${item.id}">🗑️</button>
+                </td>
+            </tr>
+        `).join('');
+
+        // Bind edit/delete events
+        document.querySelectorAll('.edit-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.handleEdit(btn.dataset.id));
         });
-    });
-}
-
-// Funciones CRUD
-function showAddModal() {
-    editingItemId = null;
-    document.getElementById('itemModal').style.display = 'block';
-}
-
-function closeModal() {
-    document.getElementById('itemModal').style.display = 'none';
-}
-
-function saveItem() {
-    const item = {
-        name: document.getElementById('itemName').value,
-        quantity: Number(document.getElementById('itemQuantity').value),
-        unit: document.getElementById('itemUnit').value,
-        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    };
-
-    if(editingItemId) {
-        db.collection('inventory').doc(editingItemId).update(item);
-    } else {
-        db.collection('inventory').add(item);
+        
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => this.handleDelete(btn.dataset.id));
+        });
     }
-    
-    closeModal();
+
+    // Resto de métodos (showModal, saveItem, searchItems, etc)...
 }
 
-function editItem(id) {
-    editingItemId = id;
-    db.collection('inventory').doc(id).get().then(doc => {
-        const data = doc.data();
-        document.getElementById('itemName').value = data.name;
-        document.getElementById('itemQuantity').value = data.quantity;
-        document.getElementById('itemUnit').value = data.unit;
-        document.getElementById('itemModal').style.display = 'block';
-    });
-}
-
-function deleteItem(id) {
-    if(confirm("¿Estás seguro de eliminar este insumo?")) {
-        db.collection('inventory').doc(id).delete();
-    }
-}
-
-// Escuchar cambios de autenticación
-auth.onAuthStateChanged(user => {
-    if(user) {
-        currentUser = user;
-        document.getElementById('loginContainer').style.display = 'none';
-        document.getElementById('inventoryContainer').style.display = 'block';
-        loadInventory();
-    }
-});
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => AdminUI.init());
