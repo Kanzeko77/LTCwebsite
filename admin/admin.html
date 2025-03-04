@@ -3,42 +3,133 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Inventario</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Gestión de Inventario</title>
     <link rel="stylesheet" href="admin.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <!-- Firebase 9 Modular (más eficiente) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        import { getFirestore, doc, getDoc, collection, query, where, onSnapshot, addDoc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_DOMAIN.firebaseapp.com",
+            projectId: "TU_PROJECT_ID",
+            storageBucket: "TU_STORAGE_BUCKET",
+            messagingSenderId: "TU_SENDER_ID",
+            appId: "TU_APP_ID"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        window.firebase = {
+            db, auth, doc, getDoc, collection, query, where, onSnapshot,
+            addDoc, updateDoc, deleteDoc, signInWithEmailAndPassword, signOut
+        };
+    </script>
 </head>
 <body>
     <div class="admin-container">
-        <div class="login-container" id="loginContainer">
-            <h2>Acceso Administrador</h2>
-            <input type="email" id="email" placeholder="Correo electrónico">
-            <input type="password" id="password" placeholder="Contraseña">
-            <button onclick="login()">Ingresar</button>
+        <!-- Sistema de autenticación -->
+        <div class="auth-container" id="authContainer">
+            <div class="auth-box">
+                <h2>Acceso Administrador</h2>
+                <div class="input-group">
+                    <label for="email">Correo electrónico:</label>
+                    <input type="email" id="email" autocomplete="username" required>
+                </div>
+                <div class="input-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" autocomplete="current-password" required>
+                </div>
+                <button id="loginBtn" class="auth-button">Ingresar</button>
+                <div id="authMessage" class="auth-message"></div>
+                <div class="security-info">
+                    <p>🔒 Conexión segura mediante Firebase Auth</p>
+                </div>
+            </div>
         </div>
 
+        <!-- Panel principal -->
         <div class="inventory-container" id="inventoryContainer" style="display:none;">
-            <h2>Gestión de Inventario</h2>
-            
-            <div class="inventory-actions">
-                <button onclick="showAddModal()">➕ Nuevo Insumo</button>
-                <button onclick="logout()">🔒 Cerrar Sesión</button>
-            </div>
+            <header class="admin-header">
+                <h1>Gestión de Inventario</h1>
+                <div class="header-actions">
+                    <button id="refreshBtn" class="icon-btn" title="Actualizar">
+                        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                    </button>
+                    <button id="logoutBtn" class="icon-btn" title="Cerrar sesión">
+                        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M10.09 15.59L11.5 17l5-5-5-5-1.41 1.41L12.67 11H3v2h9.67l-2.58 2.59zM19 3H5c-1.11 0-2 .9-2 2v4h2V5h14v14H5v-4H3v4c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+                    </button>
+                </div>
+            </header>
 
-            <div id="inventoryList"></div>
+            <main class="admin-main">
+                <div class="inventory-controls">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Buscar insumo...">
+                    </div>
+                    <button id="addItemBtn" class="primary-btn">➕ Nuevo Insumo</button>
+                </div>
+
+                <div class="inventory-table-container">
+                    <table class="inventory-table">
+                        <thead>
+                            <tr>
+                                <th data-sort="name">Nombre</th>
+                                <th data-sort="quantity">Cantidad</th>
+                                <th data-sort="unit">Unidad</th>
+                                <th data-sort="lastUpdate">Última actualización</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryList"></tbody>
+                    </table>
+                    <div id="loadingIndicator" class="loading-indicator">
+                        <div class="spinner"></div>
+                        <p>Cargando inventario...</p>
+                    </div>
+                </div>
+            </main>
         </div>
     </div>
 
-    <!-- Modal para agregar/editar insumos -->
+    <!-- Modal -->
     <div id="itemModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <h3>Gestionar Insumo</h3>
-            <input type="text" id="itemName" placeholder="Nombre del insumo">
-            <input type="number" id="itemQuantity" placeholder="Cantidad">
-            <input type="text" id="itemUnit" placeholder="Unidad de medida">
-            <button onclick="saveItem()">Guardar</button>
+            <div class="modal-header">
+                <h3>Gestionar Insumo</h3>
+                <button class="close-btn" onclick="AdminUI.closeModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="itemForm">
+                    <div class="form-group">
+                        <label for="itemName">Nombre:</label>
+                        <input type="text" id="itemName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemQuantity">Cantidad:</label>
+                        <input type="number" id="itemQuantity" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="itemUnit">Unidad de medida:</label>
+                        <select id="itemUnit" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="kg">Kilogramos</option>
+                            <option value="g">Gramos</option>
+                            <option value="l">Litros</option>
+                            <option value="unidades">Unidades</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="secondary-btn" onclick="AdminUI.closeModal()">Cancelar</button>
+                        <button type="submit" class="primary-btn">Guardar</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
